@@ -28,10 +28,7 @@ gulp build
 
 
 ├─ dev
-│    ├─ css      //开发css
-│    ├─ js
-│    └─ module   //开发js
-│    └─ vendor   /第三方库
+
 
 ```
 
