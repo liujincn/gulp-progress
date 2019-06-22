@@ -3,9 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <title>gulpFramework</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
     <!-- inject:css -->
     <link rel="stylesheet" href="dev/app.css">
     <!-- endinject -->
+
 </head>
 <body>
 <!--  布局 -->
@@ -13,23 +16,31 @@
     <div class="top">
         <div class="logo">
             <ul>
-                <li class="yz">远征</li>
-                <li class="lw">龙武</li>
-                <li class="bbcs">不败传说</li>
-                <li class="god">全民天神</li>
-                <li class="wow">热血魔兽</li>
-                <li class="x">枭雄传</li>
+                <li class="icon i-yz">远征</li>
+                <li class="icon i-lw">龙武</li>
+                <li class="icon i-bbcs">不败传说</li>
             </ul>
         </div>
+    </div>
+    <!-- Swiper -->
+    <div class="swiper-container">
+        <div class="swiper-wrapper">
+            <div class="swiper-slide"><img src="img/banner1.jpg" width="1200" height="500"></div>
+            <div class="swiper-slide"><img src="img/banner2.jpg" width="1200" height="500"></div>
+            <div class="swiper-slide"><img src="img/banner3.jpg" width="1200" height="500"></div>
+            <div class="swiper-slide"><img src="img/banner4.jpg" width="1200" height="500"></div>
+        </div>
+        <!-- Add Pagination -->
+        <div class="swiper-pagination"></div>
     </div>
     <div class="content">
         <div class="left"></div>
         <div class="right"></div>
     </div>
 </div>
-<div class="footer">冰川网络</div>
+<div class="footer">冰川网络111</div>
 <!-- vendor:js -->
-<script src="dev/common.js"></script>
+<script src="dev/vendor.js"></script>
 <!-- endinject -->
 <!-- inject:js -->
 <script src="dev/main.js"></script>

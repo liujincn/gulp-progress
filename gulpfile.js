@@ -1,247 +1,251 @@
-var gulp = require('gulp'),
+const gulp = require('gulp'),
     plugins = require('gulp-load-plugins')(),
-    htmlmin = require('gulp-htmlmin'),    // html代码压缩
-    uglify = require('gulp-uglify'),      //js压缩
-    concat = require('gulp-concat'),      //js合并
+    htmlmin = require('gulp-htmlmin'),
+    uglify = require('gulp-uglify'),
+    concat = require('gulp-concat'),
     browserify = require('browserify'),
-    stream = require('vinyl-source-stream'),
-    buffer = require('vinyl-buffer'),      //解决模块化
-
+    stream = require('vinyl-source-stream'),         //  参考文档  https://www.gulpjs.com.cn/docs/recipes/browserify-uglify-sourcemap/
+    buffer = require('vinyl-buffer'),
     browserSync = require('browser-sync').create(),
-    reload = browserSync.reload,             //浏览器的热更新
+    reload = browserSync.reload,
+    del = require('del'),
+    spritesmith = require('gulp.spritesmith'),
+    inject = require('gulp-inject'),
+    tinypng = require('gulp-tinypng-compress'),
+    cdnizer = require("gulp-cdnizer")
 
-    del = require('del'),      //删除
-    //watch = require('gulp-watch'),      //监听
-    //runSequence = require('run-sequence'),  //任务顺序执行
+const config = require('./config')
+const {root, dev, dist, isCdn, cdn, local, tinyKey, isMobile, htmlOptions, uglifyOptions, autoprefixerOptions, server, port, backend, isTiny} = config
+const {vendorJsSrc, appJsSrc, moduleJsSrc, jsDist, jsDistAll, jsDistExclude, jsDistVendor, htmlJs} = config.js
+const {cssSrc, cssDist, cssDistAll, htmlCss} = config.css
+const {imgSrc, cssImg, icon, tinyImg, imgDist, htmlImg, gifImg, imgAll, imgRoot} = config.img
+const {imgName, cssName, imgPath, padding} = config.sprite
+const {devHtml, distHtml} = config.html
+const {imgJson, allJson} = config.json
 
-    spritesmith = require('gulp.spritesmith'), // 雪碧图
-
-cdnizer = require("gulp-cdnizer")  //cdn
-
-
-
-
-
-
-
-/*
-gulp.task('cdn', function () {
-
-   return gulp.src("./css/!*.css")
-        .pipe(cdnizer({
-            defaultCDNBase: '//my.cdn.url/',
-            relativeRoot: 'css',
-            files: ['**!/!*.{gif,png,jpg,jpeg}']
-        }))
-        .pipe(gulp.dest("./dist/css/"));
-})
-*/
-
-
-
-// 第三方库的引用
-gulp.task('devCommonJs', function () {
-    return gulp.src('./vendor/*.js')
-        .pipe(concat('common.js'))    //合并所有js到common.js
-        .pipe(uglify())    //压缩
-        .pipe(gulp.dest('./dev'))  //输出
+gulp.task('devVendorJs', function () {
+    return gulp.src(vendorJsSrc)
+        .pipe(concat('vendor.js'))
+        .pipe(uglify(uglifyOptions))
+        .pipe(gulp.dest(dev))
         .pipe(reload({stream: true}))
 })
-
-gulp.task('buildCommonJs', function () {
-    return gulp.src('./vendor/*.js')
-        .pipe(concat('common.js'))    //合并所有js到common.js
-        .pipe(uglify())    //压缩
-        .pipe(gulp.dest('./dist/js'))  //输出
-})
-
-//  css
 gulp.task('devCss', function () {
-    return gulp.src('./css/*.css')
-        .pipe(concat('app.css')) //合并css
-        .pipe(gulp.dest('./dev'))
+    return gulp.src(cssSrc)
+        .pipe(plugins.autoprefixer(autoprefixerOptions))
+        .pipe(concat('app.css'))
+        .pipe(gulp.dest(dev))
         .pipe(reload({stream: true}))
 })
-gulp.task('buildCss', function () {
-    return gulp.src('./css/*.css')
-        .pipe(plugins.autoprefixer({
-            browsers:['>1%','last 2 versions'],
-            cascade: true,
-            remove:true
-        }))
-        .pipe(concat('app.css')) //合并css
-        .pipe(cdnizer({
-            defaultCDNBase: 'http://gulp.lj.dev.q1.com/dist/',
-            relativeRoot: 'css',
-            files: ['**/*.{gif,png,jpg,jpeg}']
-        }))
-        .pipe(plugins.cleanCss())/*压缩css*/
-        .pipe(gulp.dest('./dist/css'))
+gulp.task('devHtml', function () {
+    return gulp.src(devHtml)
+        .pipe(plugins.if(backend, cdnizer([
+                {
+                    file: htmlJs,
+                    cdn: local.js + '${ filename }'
+                },
+                {
+                    file: htmlCss,
+                    cdn: local.css + '${ filename }'
+                },
+                {
+                    file: htmlImg,
+                    cdn: local.img + '${ filename }'
+                }]
+            )
+        ))
+        .pipe(gulp.dest(root))
+        .pipe(reload({stream: true}))
 })
-// 删除dist
-gulp.task('del', function () {
-    return del(['dist/**'])
-})
-
-// 生成应用js
-gulp.task('devMainJs', function () {
-    // 定义入口文件
+gulp.task('devAppJs', function () {
     return browserify({
-        entries: 'js/app.js',
+        entries: appJsSrc,
         debug: true
     })
-    // 转成node readabel stream流，拥有pipe方法（stream流分小片段传输）
         .bundle()
+        .pipe(stream('main.js'))
+        .pipe(buffer())
+        .pipe(plugins.sourcemaps.init({loadMaps: true}))
+        .pipe(uglify(uglifyOptions))
         .on('error', function (error) {
             console.log(error.toString())
         })
-        // 转成gulp系的stream流，node系只有content，添加名字
-        .pipe(stream('main.js'))
-        // 转成二进制的流（二进制方式整体传输）
-        .pipe(buffer())
-        // 输出
-        .pipe(uglify())    //压缩
-        .pipe(gulp.dest('./dev'))
-        .pipe(reload({stream: true}));
-
+        .pipe(plugins.sourcemaps.write(root))
+        .pipe(gulp.dest(dev))
+        .pipe(reload({stream: true}))
 })
-gulp.task('buildMainJs', function () {
-    // 定义入口文件
-    return browserify({
-        entries: 'js/app.js',
-        debug: true
-    })
-    // 转成node readabel stream流，拥有pipe方法（stream流分小片段传输）
-        .bundle()
-        .on('error', function (error) {
-            console.log(error.toString())
-        })
-        // 转成gulp系的stream流，node系只有content，添加名字
-        .pipe(stream('main.js'))
-        // 转成二进制的流（二进制方式整体传输）
-        .pipe(buffer())
-        // 输出
-        .pipe(uglify())    //压缩
-        .pipe(gulp.dest('./dist/js'))
-        .pipe(reload({stream: true}));
-
-})
-
-// 生成雪碧图
 gulp.task('sprite', function () {
-    var spriteData = gulp.src('./icon/*.png')
+    var spriteData = gulp.src(icon)
         .pipe(spritesmith({
-            imgName: 'sprite.png', // 生成的雪碧图的名称
-            cssName: '../css/sprite.css', // 生成css文件
-            imgPath: '../img/sprite.png', // 手动指定路径, 会直接出现在background属性的值中
-            padding: 5, // 小图之间的间距, 防止重叠
-            // css模板
+            imgName: imgName,
+            cssName: cssName,
+            imgPath: imgPath,
+            padding: padding,
             cssTemplate: (data) => {
-                // data为对象，保存合成前小图和合成打大图的信息包括小图在大图之中的信息
                 let arr = [],
-                    width = data.spritesheet.px.width,
-                    height = data.spritesheet.px.height,
-                    url = data.spritesheet.image
-                    arr.push(`.icon {
+                    width = data.spritesheet.width,
+                    height = data.spritesheet.height,
+                    url = data.spritesheet.image,
+                    unit = 'px'
+                if (isMobile) {
+                    width = width / 100
+                    height = height / 100
+                    unit = 'rem'
+                }
+                arr.push(`.icon {
     display: inline-block;
-    vertical-align: middle;
     background: url("${url}") no-repeat;
+    width: ${width}${unit};
+    height: ${height}${unit};
+    background-size:${width}${unit} ${height}${unit};
 }
-`);
+`)
                 data.sprites.forEach(function (sprite) {
+                    let posX = sprite.offset_x,
+                        posY = sprite.offset_y,
+                        iw = sprite.width,
+                        ih = sprite.height
+                    if (isMobile) {
+                        posX = posX / 100
+                        posY = posY / 100
+                        iw = iw / 100
+                        ih = ih / 100
+                    }
                     arr.push(`.i-${sprite.name} {
-    width: ${sprite.px.width};
-    height: ${sprite.px.height};
-    background-position: ${sprite.px.offset_x} ${sprite.px.offset_y};
-    background-size: ${sprite.px.width} ${sprite.px.height};
+    width: ${iw}${unit};
+    height: ${ih}${unit};
+    background-position:${posX}${unit} ${posY}${unit};
 }
-`);
-                });
-                return arr.join('');
+`)
+                })
+                return arr.join('')
             }
-
-        }));
-
-    return spriteData.pipe(gulp.dest('./img'))
-
+        }))
+    return spriteData.pipe(gulp.dest(imgSrc))
+        .pipe(reload({stream: true}))
 })
-// 实现浏览器的热更新
 gulp.task('browser', function () {
     browserSync.init({
-        server: {
-            files: ['**'],
-            proxy: 'localhost', // 设置本地服务器的地址
-            index: 'index.html' // 指定默认打开的文件
-        },
-        port: 8000  // 指定访问服务器的端口号
+        server: server,
+        port
     })
-    gulp.watch('./*.html').on('change', reload)
-    gulp.watch('./vendor/*.js', gulp.series('devCommonJs'))
-    gulp.watch('./module/*.js', gulp.series('devMainJs'))
-    gulp.watch('./icon/*.png', gulp.series('sprite'))
-    gulp.watch('./css/*.css', gulp.series('devCss'))
-
-
+    gulp.watch(devHtml).on("change", reload)
+    gulp.watch(vendorJsSrc, gulp.series('devVendorJs'))
+    gulp.watch(appJsSrc, gulp.series('devAppJs'))
+    gulp.watch(moduleJsSrc, gulp.series('devAppJs'))
+    gulp.watch(icon, gulp.series('sprite'))
+    gulp.watch(cssSrc, gulp.series('devCss'))
 })
-// 压缩页面html
-gulp.task('html', function () {
-    var options = {
-        removeComments: true,//清除HTML注释
-        collapseWhitespace: true,//压缩HTML
-        collapseBooleanAttributes: true,//省略布尔属性的值 <input checked="true"/> ==> <input />
-        removeEmptyAttributes: true,//删除所有空格作属性值 <input id="" /> ==> <input />
-        removeScriptTypeAttributes: true,//删除<script>的type="text/javascript"
-        removeStyleLinkTypeAttributes: true,//删除<style>和<link>的type="text/css"
-        minifyJS: true,//压缩页面JS
-        minifyCSS: true//压缩页面CSS
-    }
-    return gulp.src('./*.html')
-        //.pipe(plugins.inject(gulp.src(['./dist/js/*.js','./dist/css/*.css'], {read: false}), {relative: true}))
 
-        .pipe(plugins.inject(gulp.src('./dist/js/common.js', {read: false}), {name: 'vendor'}))
-        .pipe(plugins.inject(gulp.src(['./dist/js/*.js','./dist/css/*.css', '!./dist/js/common.js'], {read: false})))
-        .pipe(htmlmin(options))
+gulp.task('del', function () {
+    return del(dist)
+})
+gulp.task('tinyImg', function () {
+    return gulp.src(tinyImg)
+        .pipe(plugins.if(isTiny, tinypng({
+                key: tinyKey,
+                log: true
+            })
+        ))
+        .pipe(gulp.dest(imgSrc))
+})
+gulp.task('buildImg', function () {
+    return gulp.src(imgAll)
 
-
+        .pipe(plugins.rev())
+        .pipe(gulp.dest(imgDist))
+        .pipe(plugins.rev.manifest())
+        .pipe(gulp.dest(imgDist))
+})
+gulp.task('copyHtml', function () {
+    return gulp.src(devHtml)
+        .pipe(gulp.dest(dist))
+})
+gulp.task('buildHtml', function () {
+    return gulp.src(distHtml)
+        .pipe(inject(gulp.src([jsDistAll, cssDistAll, jsDistExclude], {read: false}), {relative: true}))
+        .pipe(inject(gulp.src(jsDistVendor, {read: false}), {name: 'vendor', relative: true}))
+        //.pipe(htmlmin(htmlOptions))
         .pipe(cdnizer([
-            // matches all root angular files
-            {
-                file: '/dist/css/*.css',
-                cdn: 'http://gulp.lj.dev.q1.com/dist/'
-            },
-            {
-                file: '/dist/js/*.js',
-                cdn: 'http://gulp.lj.dev.q1.com/dist/'
-            }
-        ]))
-
-
-
-
-        .pipe(gulp.dest('dist/'))
-});
-
-
-
-//  监听任务 浏览器自动刷新
-
-
-/*gulp.task('watch', function() {
-    w('./vendor/*.js', 'devCommonJs')
-    w('./module/*.js', 'devMainJs')
-
-    function w(path, task) {
-        watch(path, function() {
-            gulp.start(task);
-            browserSync.reload();
+                {
+                    file: htmlImg,
+                    cdn: imgRoot + '${ filename }'
+                }]
+            )
+        )
+        .pipe(plugins.if(isCdn, cdnizer([
+                {
+                    file: htmlJs,
+                    cdn: cdn.js + '${ filename }'
+                },
+                {
+                    file: htmlCss,
+                    cdn: cdn.css + '${ filename }'
+                },
+                {
+                    file: htmlImg,
+                    cdn: cdn.img + '${ filename }'
+                }]
+            )
+        ))
+        .pipe(gulp.dest(dist))
+})
+gulp.task('revHtml', function () {
+    return gulp.src([allJson, distHtml])
+        .pipe(plugins.revCollector({replaceReved: true}))
+        .pipe(gulp.dest(dist))
+})
+gulp.task('revJs', function () {
+    return gulp.src(jsDistAll)
+        .pipe(plugins.clean())
+        .pipe(plugins.rev())
+        .pipe(gulp.dest(jsDist))
+        .pipe(plugins.rev.manifest())
+        .pipe(gulp.dest(jsDist))
+})
+gulp.task('revCss', function () {
+    return gulp.src([imgJson, cssDistAll])
+        .pipe(plugins.revCollector({replaceReved: true}))
+        .pipe(gulp.dest(cssDist))
+})
+gulp.task('buildAppJs', function () {
+    return browserify({
+        entries: appJsSrc,
+        debug: true
+    })
+        .bundle()
+        .pipe(stream('main.js'))
+        .pipe(buffer())
+        .pipe(uglify(uglifyOptions))
+        .on('error', function (error) {
+            console.log(error.toString())
         })
-    }
-})*/
+        .pipe(gulp.dest(jsDist))
+        .pipe(reload({stream: true}))
+})
 
-/*gulp.task('watch', function() {
-    //gulp.watch('./vendor/!*.js', ['devCommonJs'])
-
-    //gulp.watch('./js/!*.js', ['devMainJs'])
-})*/
-gulp.task('dev', gulp.series('devCss', 'devCommonJs', 'devMainJs', 'browser'))
-gulp.task('build', gulp.series('del','buildCss', 'buildCommonJs', 'buildMainJs', 'html'))
+gulp.task('buildCss', function () {
+    return gulp.src(cssSrc)
+        .pipe(plugins.autoprefixer(autoprefixerOptions))
+        .pipe(concat('app.css'))
+        .pipe(plugins.if(isCdn, cdnizer([
+            {
+                file: cssImg,
+                cdn: cdn.img + '${ filename }'
+            }])
+        ))
+        .pipe(plugins.cleanCss())
+        .pipe(plugins.rev())
+        .pipe(gulp.dest(cssDist))
+        .pipe(plugins.rev.manifest())
+        .pipe(gulp.dest(cssDist))
+})
+gulp.task('buildVendorJs', function () {
+    return gulp.src(vendorJsSrc)
+        .pipe(concat('vendor.js'))
+        .pipe(uglify(uglifyOptions))
+        .pipe(gulp.dest(jsDist))
+})
+gulp.task('dev', gulp.series('sprite', 'devCss', 'devVendorJs', 'devAppJs', 'devHtml', 'browser'))
+gulp.task('build', gulp.series('del', 'buildCss', 'buildVendorJs', 'buildAppJs', 'revJs', 'revCss', 'copyHtml', 'revHtml', 'buildHtml', 'buildImg'))
+//plugins.if(isTiny,'buildGif')
