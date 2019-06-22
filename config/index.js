@@ -11,7 +11,7 @@ const imgResource ='img',cssResource ='css',jsResource ='js'
 module.exports = {
     isCdn: true,
     isMobile:false,
-    backend :false,   // 建立在svn某游戏目录下，如需传给后端人员，请开启为true，省去手动替换html页面中的资源链接
+    backend :true,   // 建立在svn某游戏目录下，如需传给后端人员，请开启为true，省去手动替换html页面中的资源链接
     isTiny:false,      //  开启图片压缩
     port: '8000',
     root:'./',
@@ -93,23 +93,6 @@ module.exports = {
         index: 'index.html'
     },
 
-
-  /*  less: {
-        all: src + "/css/!**!/!*.less", // 所有 less
-        src: src + "/css/!*.less", // 需要编译的 less
-        dest: dest + "/css", // 输出目录
-        settings: { // 编译 less 过程需要的配置，可以为空
-
-        }
-    },
-    sass: {
-        all: src + "/css/!**!/!*.scss", // 所有scss
-        src: src + "/css/!*.scss", // 需要编译的scss
-        dest: dest + "/css", // 输出目录
-        settings: { // 编译 scss 过程需要的配置，可以为空
-
-        }
-    },*/
     local: {
         img: `http://${game}.${developer}.${devDomain}/${projectType}/${projectName}/img/`,
         css: `http://${game}.${developer}.${devDomain}/${projectType}/${projectName}/dev/`,

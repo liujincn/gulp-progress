@@ -140,18 +140,24 @@ gulp.task('browser', function () {
 gulp.task('del', function () {
     return del(dist)
 })
-gulp.task('tinyImg', function () {
-    return gulp.src(tinyImg)
+gulp.task('buildGif', function () {
+    return gulp.src(gifImg)
+        .pipe(plugins.rev())
+        .pipe(gulp.dest(imgDist))
+        .pipe(plugins.rev.manifest())
+        .pipe(gulp.dest(imgDist))
+})
+gulp.task('buildImg', function () {
+    let buildImgSrc =imgAll
+    if(isTiny){
+         buildImgSrc =tinyImg
+    }
+    return gulp.src(buildImgSrc)
         .pipe(plugins.if(isTiny, tinypng({
                 key: tinyKey,
                 log: true
             })
         ))
-        .pipe(gulp.dest(imgSrc))
-})
-gulp.task('buildImg', function () {
-    return gulp.src(imgAll)
-
         .pipe(plugins.rev())
         .pipe(gulp.dest(imgDist))
         .pipe(plugins.rev.manifest())
@@ -247,5 +253,4 @@ gulp.task('buildVendorJs', function () {
         .pipe(gulp.dest(jsDist))
 })
 gulp.task('dev', gulp.series('sprite', 'devCss', 'devVendorJs', 'devAppJs', 'devHtml', 'browser'))
-gulp.task('build', gulp.series('del', 'buildCss', 'buildVendorJs', 'buildAppJs', 'revJs', 'revCss', 'copyHtml', 'revHtml', 'buildHtml', 'buildImg'))
-//plugins.if(isTiny,'buildGif')
+gulp.task('build',gulp.series('del', 'buildVendorJs', 'buildAppJs', 'revJs','buildGif', 'buildImg','buildCss', 'revCss', 'copyHtml', 'revHtml', 'buildHtml'))
