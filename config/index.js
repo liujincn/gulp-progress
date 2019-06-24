@@ -1,24 +1,22 @@
-// developer   lj, tjy, cdh, zq, yr, lbb   开发者
-// game         yz, lw2/lw, bbcs, ywz, gg, yzsy, lwsy, mm,  游戏名称
-// projectType h5, zt, huodong, login    项目类型
-// projectName     项目名称
-const developer = 'lj', game = 'yzsy', projectType = 'h5', projectName = 'anniversary'
-
+/*
+developer       lj, tjy, cdh, zq, yr, lbb   开发者
+ game            yz, lw2/lw, bbcs, ywz, gg, yzsy, lwsy, mm,  游戏名称
+ projectType     h5, zt, huodong, login    项目类型
+ projectName     项目名称
+ */
+const developer = 'lj', game = 'yz', projectType = 'zt', projectName = 'gulp'
 const imgDomain='//img.ssl.q1.com/',cssDomain='//css.ssl.q1.com/',jsDomain='//css.ssl.q1.com/',devDomain = 'dev.q1.com'
-
 const imgResource ='img',cssResource ='css',jsResource ='js'
-
 module.exports = {
-    isCdn: true,
+    isCdn: false,
     isMobile:false,
-    backend :true,   // 建立在svn某游戏目录下，如需传给后端人员，请开启为true，省去手动替换html页面中的资源链接
+    backend :false,   // 建立在svn某游戏目录下，如需传给后端人员，请开启为true，省去手动替换html页面中的资源链接
     isTiny:false,      //  开启图片压缩
     port: '8000',
     root:'./',
     dev: './dev',
     dist: './dist/',
-    tinyKey: '7NRAuTVZeoFEoelQbxzyNlMYYimlknun',     //  一个tinyKey值每月能压缩500张图片，同一项目下多次build打包压缩，不累计次数。如果需要自己的key值，请前往 https://tinypng.com/developers  申请  查看次数 https://tinypng.com/dashboard/api
-
+    tinyKey: '7NRAuTVZeoFEoelQbxzyNlMYYimlknun',     //  一个tinyKey值每月能压缩500张图片，同一天多次build打包压缩，不累计次数。如果需要自己的key值，请前往 https://tinypng.com/developers申请；查看次数 https://tinypng.com/dashboard/api
     htmlOptions:{
         removeComments: true,
         collapseWhitespace: true,
@@ -29,7 +27,6 @@ module.exports = {
         minifyJS: true,
         minifyCSS: true
     },
-
     autoprefixerOptions:{
         supportedBrowsers: [
             "> 1%",
@@ -42,11 +39,9 @@ module.exports = {
         cascade: true,
         remove: true
     },
-
     uglifyOptions:{
         ie8:true
     },
-
     css: {
         cssSrc: './css/*.css',
         cssDist:  './dist/css',
@@ -92,7 +87,6 @@ module.exports = {
         proxy: 'localhost',
         index: 'index.html'
     },
-
     local: {
         img: `http://${game}.${developer}.${devDomain}/${projectType}/${projectName}/img/`,
         css: `http://${game}.${developer}.${devDomain}/${projectType}/${projectName}/dev/`,

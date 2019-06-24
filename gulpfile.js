@@ -171,7 +171,7 @@ gulp.task('buildHtml', function () {
     return gulp.src(distHtml)
         .pipe(inject(gulp.src([jsDistAll, cssDistAll, jsDistExclude], {read: false}), {relative: true}))
         .pipe(inject(gulp.src(jsDistVendor, {read: false}), {name: 'vendor', relative: true}))
-        //.pipe(htmlmin(htmlOptions))
+        .pipe(htmlmin(htmlOptions))
         .pipe(cdnizer([
                 {
                     file: htmlImg,

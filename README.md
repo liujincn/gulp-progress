@@ -1,34 +1,29 @@
 ﻿
-### 全局安装gulp
-```
- npm install -g gulp
-```
 
-### 安装项目依赖
-```
-npm install
-```
+### 注意点:
 
-### 开发环境
-```
-gulp  dev
-```
+> 放置到你需要开发的目录，(svn)；
 
-### 生产环境
-```
-gulp build
+>isCdn(外网部署资源域名),isMobile(移动端),backend(发给后端人员，配置内网html的资源域名)，isTiny(开启图片压缩)，默认为false，请跟进自身需求开启相关配置；
+
+# 安装使用
 
 ```
 
-# 目录使用
+    1.下载安装
+
+        $ git clone git@github.com:liujincn/gulp-progress.git
+
+    2. 安装项目依赖
+
+        npm install
+
+    3.启动项目
+
+        gulp dev or npm run dev
+
+    4.发布项目
+
+        gulp build or npm run build
 
 ```
-.
-├─ .index.html    //开发页面
-
-
-├─ dev
-
-
-```
-
