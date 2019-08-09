@@ -12,6 +12,7 @@ module.exports = {
     isMobile:false,
     backend :false,   // 建立在svn某游戏目录下，如需传给后端人员，请开启为true，省去手动替换html页面中的资源链接
     isTiny:false,      //  开启图片压缩
+    isLess:false,      //  开启less
     port: '8000',
     root:'./',
     dev: './dev',
@@ -44,9 +45,12 @@ module.exports = {
     },
     css: {
         cssSrc: './css/*.css',
+        cssSrcExclude: ['./css/*.css','!./css/style.css'],
+        lessSrc: './css/*.less',
         cssDist:  './dist/css',
         cssDistAll:  './dist/css/*.css',
-        htmlCss:  '**/*.css'
+        htmlCss:  '**/*.css',
+        cssRoot:  './css'
     },
     js: {
         vendorJsSrc: './vendor/*.js',

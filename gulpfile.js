@@ -12,12 +12,13 @@ const gulp = require('gulp'),
     spritesmith = require('gulp.spritesmith'),
     inject = require('gulp-inject'),
     tinypng = require('gulp-tinypng-compress'),
-    cdnizer = require("gulp-cdnizer")
+    cdnizer = require("gulp-cdnizer"),
+    less = require('gulp-less')
 
 const config = require('./config')
-const {root, dev, dist, isCdn, cdn, local, tinyKey, isMobile, htmlOptions, uglifyOptions, autoprefixerOptions, server, port, backend, isTiny} = config
+const {root, dev, dist, isCdn, cdn, local, tinyKey, isMobile, htmlOptions, uglifyOptions, autoprefixerOptions, server, port, backend, isTiny,isLess} = config
 const {vendorJsSrc, appJsSrc, moduleJsSrc, jsDist, jsDistAll, jsDistExclude, jsDistVendor, htmlJs} = config.js
-const {cssSrc, cssDist, cssDistAll, htmlCss} = config.css
+const {cssSrc,cssSrcExclude,lessSrc, cssDist, cssDistAll, htmlCss,cssRoot} = config.css
 const {imgSrc, cssImg, icon, tinyImg, imgDist, htmlImg, gifImg, imgAll, imgRoot} = config.img
 const {imgName, cssName, imgPath, padding} = config.sprite
 const {devHtml, distHtml} = config.html
@@ -31,12 +32,24 @@ gulp.task('devVendorJs', function () {
         .pipe(reload({stream: true}))
 })
 gulp.task('devCss', function () {
-    return gulp.src(cssSrc)
+
+    let devCssSrc =cssSrc
+    if(isLess){
+        devCssSrc =cssSrcExclude
+    }
+    return gulp.src(devCssSrc)
         .pipe(plugins.autoprefixer(autoprefixerOptions))
         .pipe(concat('app.css'))
         .pipe(gulp.dest(dev))
         .pipe(reload({stream: true}))
 })
+
+gulp.task('less', function () {
+    return gulp.src(lessSrc)
+        .pipe(plugins.if(isLess, less()))
+        .pipe(gulp.dest(cssRoot))
+})
+
 gulp.task('devHtml', function () {
     return gulp.src(devHtml)
         .pipe(plugins.if(backend, cdnizer([
@@ -252,5 +265,5 @@ gulp.task('buildVendorJs', function () {
         .pipe(uglify(uglifyOptions))
         .pipe(gulp.dest(jsDist))
 })
-gulp.task('dev', gulp.series('sprite', 'devCss', 'devVendorJs', 'devAppJs', 'devHtml', 'browser'))
+gulp.task('dev', gulp.series('sprite', 'less','devCss', 'devVendorJs', 'devAppJs', 'devHtml', 'browser'))
 gulp.task('build',gulp.series('del', 'buildVendorJs', 'buildAppJs', 'revJs','buildGif', 'buildImg','buildCss', 'revCss', 'copyHtml', 'revHtml', 'buildHtml'))

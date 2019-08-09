@@ -1,92 +1,85 @@
-body, html {
-    margin: 0;
-    font-family: "Microsoft YaHei", "Helvetica Neue", Arial, HelveticaNeue, Helvetica, "BBAlpha Sans", sans-serif;
-    width: 100%;
-    margin: 0 auto;
-    height: 100%;
+body,
+html {
+  margin: 0;
+  font-family: "Microsoft YaHei", "Helvetica Neue", Arial, HelveticaNeue, Helvetica, "BBAlpha Sans", sans-serif;
+  width: 100%;
+  margin: 0 auto;
+  height: 100%;
+  background: #fff;
 }
-
+a {
+  color: #428bca;
+  text-decoration: none;
+}
+a:hover {
+  color: #f00;
+  text-decoration: underline;
+}
 * {
-    padding: 0;
-    margin: 0;
+  padding: 0;
+  margin: 0;
 }
-
-ol, ul {
-    list-style: none;
+ol,
+ul {
+  list-style: none;
 }
-
 .clear {
-    clear: both;
-    height: 0;
-    zoom: 1;
-    visibility: hidden;
-
+  clear: both;
+  height: 0;
+  zoom: 1;
+  visibility: hidden;
 }
-
 .layout {
-    width: 1200px;
-    margin: 0 auto;
+  width: 1200px;
+  margin: 0 auto;
 }
-
 .top {
-    height: 90px;
+  height: 90px;
 }
-
 .logo {
-    text-align: center
+  text-align: center;
 }
-
 .logo li {
-     text-indent: -9999px;
-
+  text-indent: -9999px;
 }
 .swiper-container {
-    width: 1200px;
-    margin: 0 auto;
-    height: 500px;
+  width: 1200px;
+  margin: 0 auto;
+  height: 500px;
 }
 .swiper-slide {
-    text-align: center;
-    font-size: 18px;
-    background: #fff;
-
-    /* Center slide text vertically */
-    display: -webkit-box;
-    display: -ms-flexbox;
-    display: -webkit-flex;
-    display: flex;
-    -webkit-box-pack: center;
-    -ms-flex-pack: center;
-    -webkit-justify-content: center;
-    justify-content: center;
-    -webkit-box-align: center;
-    -ms-flex-align: center;
-    -webkit-align-items: center;
-    align-items: center;
+  text-align: center;
+  font-size: 18px;
+  background: #fff;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  -webkit-align-items: center;
+  align-items: center;
 }
-
 .content {
-    height: 200px;
-
+  height: 200px;
 }
-
 .left {
-    float: left;
-    width: 30%;
-    background: #666;
-    height: 200px;
+  float: left;
+  width: 30%;
+  background: #666;
+  height: 200px;
 }
-
 .right {
-    float: right;
-    width: 70%;
-    background: #aaa;
-    height: 200px;
+  float: right;
+  width: 70%;
+  background: #aaa;
+  height: 200px;
 }
-
 .footer {
-    text-align: center;
-    padding-top: 20px;
+  text-align: center;
+  padding-top: 20px;
 }
-
-
